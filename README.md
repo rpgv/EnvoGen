@@ -4,6 +4,11 @@ This script simulates "cells", each containing its own "genetic code". It observ
 
 ## Simulation Mechanics
 
+
+https://github.com/user-attachments/assets/43305f8a-85a0-44b4-af71-301df68678a2
+
+
+
 - **Cells**: Each cell has a "genetic code" that dictates its behavior.
 - **Mutation**: For each replication iteration, the genetic code can mutate according to a mutation rate.
 - **Homes (Blue Box)**:
