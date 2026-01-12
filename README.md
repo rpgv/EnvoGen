@@ -7,19 +7,23 @@ This script simulates "cells", each containing its own "genetic code". It observ
 
 
 
-https://github.com/user-attachments/assets/08e394ee-734a-4ea5-a170-6fa68487ec5b
+
+https://github.com/user-attachments/assets/9cb8aca7-36a0-41de-b025-b8a510828a7e
+
+
 
 
 
 
 
 - **Cells**: Each cell has a "genetic code" that dictates its behavior.
+- **Genetic Code**: Cover size, lifespan, reproduction cycle, mutation rate, movement, adherence to walls - all this is reflected in the color of the cell.
 - **Mutation**: For each replication iteration, the genetic code can mutate according to a mutation rate.
-- **Homes (Blue Box)**:
-  - Lowers the mutation rate.
+- **Nests (Blue Box)**:
   - Extends the cell's life span.
   - Promotes one duplication cycle.
 - **Threats (Red Box)**: Kills the cells upon contact.
+- **Walls (Black Box)**: Inverts cell direction.
 
 ## How to Launch
 
@@ -33,9 +37,7 @@ uv run UI_V0.1.py
 
 ## Interacting with the Simulation
 
-- **Add Threats & Homes**: Right-click anywhere in the environment to create a threat (Red Box) and a home (Blue Box).
-- **Add Cells**: Click the **"Add Cell"** button to generate random cells throughout the environment.
+- **Add Cells, Threats, Nests and Walls**: Right-click on the "+" button (i.e. +Cells) and left-click anywhere within the env. 
 - **Remove Objects**:
-  1. Click the **"Edit Env"** button to enable editing mode.
-  2. Left-click on any Home or Threat you wish to eliminate.
-  3. Click **"Edit Env"** again to disable editing mode.
+  1. Click the **"Edit"** button to enable editing mode. Once in editing mode, right-click on item to remove it (not applicable to cells).
+  2. Click **"Edit Env"** again to disable editing mode.
