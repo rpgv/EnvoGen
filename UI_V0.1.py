@@ -11,13 +11,6 @@ screen = pygame.display.set_mode((720, 720))
 clock = pygame.time.Clock()
 MAX_SPRITES = 500
 
-button_text_map = {
-    1:"Add Cell",
-    2:"Add Threat",
-    3:"Add Nest",
-    4:"Remove Item",
-    5:"Add wall",
-}
 
 attraction_map = {
     1:[1,1],
