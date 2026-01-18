@@ -65,7 +65,7 @@ def mutation(genes):
     return n_genes
 
 def staying_factor(genes):
-    return (genes[-2]/10,1-(genes[-2]/10))
+    return ((genes[-2]/10)/2, (genes[-2]/10)/2, 1-(genes[-2]/10))
 
 def add_env_object(buttons):
     if buttons.sprites()[0].edit:
@@ -141,25 +141,25 @@ class Cell(pygame.sprite.Sprite):
                 cells.add(Cell(pos=(self.pos.x-10, self.pos.y-10), genes=n_genes), Cell(pos=(self.pos.x, self.pos.y), genes=n_genes))
         
         elif collider(self.pos, walls):
-            self.dir.x *= -1 * choice([-1,1],p=staying_factor(self.genes))
-            self.dir.y *= -1 * choice([-1,1],p=staying_factor(self.genes))
+            self.dir.x *= -1 * choice([-1,0,1],p=staying_factor(self.genes))
+            self.dir.y *= -1 * choice([-1,0,1],p=staying_factor(self.genes))
         
         if self.rect.left <= 0:
             self.rect.left = 0
             self.pos.x = 0
-            self.dir.x *= -1 * choice([-1,1],p=staying_factor(self.genes))
+            self.dir.x *= -1 * choice([-1,0,1],p=staying_factor(self.genes))
         elif self.rect.right >= 720:
             self.rect.right = 720
             self.pos.x = 720 - self.rect.width
-            self.dir.x *= -1 * choice([-1,1],p=staying_factor(self.genes))
+            self.dir.x *= -1 * choice([-1,0,1],p=staying_factor(self.genes))
         if self.rect.top <= 0:
             self.rect.top = 0
             self.pos.y = 0
-            self.dir.y *= -1 * choice([-1,1],p=staying_factor(self.genes))
+            self.dir.y *= -1 * choice([-1,0,1],p=staying_factor(self.genes))
         elif self.rect.bottom >= 520:
             self.rect.bottom = 520
             self.pos.y = 520 - self.rect.height
-            self.dir.y *= -1 * choice([-1,1],p=staying_factor(self.genes))
+            self.dir.y *= -1 * choice([-1,0,1],p=staying_factor(self.genes))
         
 
         if self.genes[1]*10 <= sim_time-(self.internal_clock-0.05) and len(cells.sprites()) < MAX_SPRITES:
