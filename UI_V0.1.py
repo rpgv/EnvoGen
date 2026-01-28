@@ -1,17 +1,16 @@
-# Source - https://stackoverflow.com/a
-# Posted by Ted Klein Bergman, modified by community. See post 'Timeline' for change history
-# Retrieved 2025-11-16, License - CC BY-SA 3.0
 from numpy.random.mtrand import random
 import pygame
 from numpy.random import choice
 import random
-pygame.init()
 
+# Initiate PyGame and set up the clock
+pygame.init()
 screen = pygame.display.set_mode((720, 720))
 clock = pygame.time.Clock()
+# Define the maximum number of sprites (cells) in the simulation
 MAX_SPRITES = 500
 
-
+# Maps attraction code to a movement vector (direction in screen)
 attraction_map = {
     1:[1,1],
     2:[-1,1],
@@ -24,12 +23,25 @@ attraction_map = {
 }
 
 def color_generator(genes):
+    """Genes are mapped to RGB values
+        Parameters:
+            genes (list): List of genes
+        Returns:
+            tuple: RGB values
+    """
     r = (((sum([i for i in genes[:2]]) - 0) * 255) / 24) 
     g = (((sum([i for i in genes[2:5]]) - 0) * 255) / 24) 
     b = (((sum([i for i in genes[5:]]) - 0) * 255) / 24) 
     return r,g,b
 
 def enforce_limit(int, limit):
+    """Enforces limits on gene values
+        Parameters:
+            int (int): Integer to be limited
+            limit (int): Limit to be enforced
+        Returns:
+            int: Limited integer
+    """
     if int > limit:
         return limit
     elif int < 1:
@@ -38,6 +50,13 @@ def enforce_limit(int, limit):
         return int
 
 def clone_cells(sprite_g):
+    """
+    Clones cells
+        Parameters:
+            sprite_g (pygame.sprite.Group): Group of cells to clone
+        Returns:
+            None
+    """
     for i in sprite_g.sprites():
         mutations = i.mutate()
         # print(f"Mutations: {mutations}")
@@ -45,10 +64,27 @@ def clone_cells(sprite_g):
             sprite_g.add(Cell(pos=(i.pos.x-10, i.pos.y-10), genes=mutations),
             Cell(pos=(i.pos.x, i.pos.y), genes=mutations))
 
+
 def danger_zone(pos, size):
+    """ 
+    Parameters:
+        pos (tuple): Position of the sprite
+        size (tuple): Size of the sprite
+    Returns:
+        tuple: Collision zone of the sprite
+    """
     return pos[0]-10,pos[0]+size[0]+10,pos[1]-10,pos[1]+size[1]+10
 
+
 def collider(pos, s_group):
+    """
+    Checks if a position is within the collision zone of any sprite in a group
+        Parameters:
+            pos (tuple): Position of the sprite
+            s_group (pygame.sprite.Group): Group of sprites to check for collision
+        Returns:
+            bool: True if the position is within the collision zone of any sprite in the group, False otherwise
+    """
     collides = False
     for i in s_group:
         x1,x2,y1,y2 = danger_zone(i.pos, i.size)
@@ -57,6 +93,13 @@ def collider(pos, s_group):
     return collides
 
 def mutation(genes):
+    """
+    Generates mutations for a cell based on their own mutation factor (genes[4])
+        Parameters:
+            genes (list): List of genes
+        Returns:
+            list: List of mutated genes
+    """
     factor = genes[4]*0.10
     n_genes = []
     for g in genes[:-1]: 
@@ -65,9 +108,24 @@ def mutation(genes):
     return n_genes
 
 def staying_factor(genes):
+    """
+    Calculates the staying factor of a cell based on its staying gene (genes[-2])
+    Staying factor determines cell tendency to "stick" to a surface
+        Parameters:
+            genes (list): List of genes
+        Returns:
+            tuple: Staying factor
+    """
     return ((genes[-2]/10)/2, (genes[-2]/10)/2, 1-(genes[-2]/10))
 
 def add_env_object(buttons):
+    """
+    Defines interface buttons behavior when clicked
+        Parameters:
+            buttons (pygame.sprite.Group): Group of buttons
+        Returns:
+            None
+    """
     if buttons.sprites()[0].edit:
         buttons.sprites()[1].edit = False
         buttons.sprites()[2].edit = False
@@ -90,15 +148,30 @@ def add_env_object(buttons):
         walls.add(Walls(pos=(pygame.mouse.get_pos()[0],pygame.mouse.get_pos()[1])))
 
 def base_button_border(screen, buttons):
+    """
+    Draws the border of the buttons - highlight they were clicked or not
+        Parameters:
+            screen (pygame.Surface): Screen to draw on
+            buttons (pygame.sprite.Group): Group of buttons
+        Returns:
+            None
+    """
     for i in buttons:
         if i.edit == False:
             pygame.draw.rect(screen, (0, 0, 0), i.rect,2)
         else:
             pygame.draw.rect(screen, (0, 0, 0), i.rect,4)
-    
-cells = pygame.sprite.Group()
+
 # Genetic code reference: [size, life_span, reprod_rate, predator, mutation_factor, speed, staying_factor, attraction]
 class Cell(pygame.sprite.Sprite):
+    """
+    Represents a single cell instance in the simulation
+        Parameters:
+            pos (tuple): Position of the cell
+            genes (list): List of genes
+        Returns:
+            None
+    """
     def __init__(self, pos, genes=[1,1,1,0,1,1,1,1]):
         super(Cell, self).__init__()
         image = pygame.Surface((5+genes[0], 5+genes[0]))
@@ -124,6 +197,14 @@ class Cell(pygame.sprite.Sprite):
         return mutation(self.genes)
 
     def update(self, dt, sim_time):
+        """
+        Update cell position and check for collisions
+            Parameters:
+                dt (float): Delta time
+                sim_time (float): Simulation time
+            Returns:
+                None
+        """
         self.pos.x += self.dir.x * attraction_map[self.genes[7]][0]* 0.1 * dt + ((self.genes[5]+0.1)/100)
         self.pos.y += self.dir.y * attraction_map[self.genes[7]][1]* 0.1 * dt + ((self.genes[5]+0.1)/100)
         self.rect.topleft = self.pos
@@ -169,6 +250,16 @@ class Cell(pygame.sprite.Sprite):
             self.kill()
 
 class Button(pygame.sprite.Sprite):
+    """
+    Represents a single button instance in the simulation
+        Parameters:
+            pos (tuple): Position of the button
+            size (tuple): Size of the button
+            image (pygame.Surface): Image of the button
+            bid (int): Button ID
+        Returns:
+            None
+    """
     def __init__(self, pos, size=(32, 32), image=None,bid=0):
         super(Button, self).__init__()
         if image is None:
@@ -200,6 +291,15 @@ class Button(pygame.sprite.Sprite):
             
 
 class Threat(pygame.sprite.Sprite):
+    """
+    Represents a single threat instance in the simulation - threats kill cells on contact
+        Parameters:
+            pos (tuple): Position of the threat
+            size (tuple): Size of the threat
+            bid (int): Threat ID
+        Returns:
+            None
+    """
     def __init__(self, pos, size=(32, 32),bid=0):
         super(Threat, self).__init__()
         image = pygame.Surface(size)
@@ -220,6 +320,15 @@ class Threat(pygame.sprite.Sprite):
             self.kill()
 
 class Nests(pygame.sprite.Sprite):
+    """
+    Represents a single nest instance in the simulation - nests are resets cell lifecycle and triggers reproduction (if less than 10% of max sprites)
+        Parameters:
+            pos (tuple): Position of the nest
+            size (tuple): Size of the nest
+            bid (int): Nest ID
+        Returns:
+            None
+    """
     def __init__(self, pos, size=(32, 32),bid=0):
         super(Nests, self).__init__()
         image = pygame.Surface(size)
@@ -240,6 +349,15 @@ class Nests(pygame.sprite.Sprite):
             self.kill()
 
 class Walls(pygame.sprite.Sprite):
+    """
+    Represents a single wall instance in the simulation - walls are obstacles for cells
+        Parameters:
+            pos (tuple): Position of the wall
+            size (tuple): Size of the wall
+            bid (int): Wall ID
+        Returns:
+            None
+    """
     def __init__(self, pos, size=(32, 32),bid=0):
         super(Walls, self).__init__()
         image = pygame.Surface(size)
@@ -259,6 +377,10 @@ class Walls(pygame.sprite.Sprite):
         if self.rect.collidepoint(*mouse_pos) and mouse_clicked and buttons.sprites()[4].edit:
             self.kill()
 
+# --- Sprite Groups ---
+cells = pygame.sprite.Group()
+
+# --- Button Images ---
 image = pygame.Surface((100, 40))
 image.fill((0, 173, 76))
 image2 = pygame.Surface((100, 40))
@@ -278,7 +400,7 @@ buttons.add(
     Button(pos=(125, 535), image=image5,bid=4)
 )        
 
-
+# --- Threat Group ---
 threats = pygame.sprite.Group()
 threats.add(
     Threat(pos=(0, 0), size=(40,40)),
@@ -287,23 +409,23 @@ threats.add(
     Threat(pos=(680, 480), size=(40,40)),
 )
 
+# --- Nest Group ---
 nests = pygame.sprite.Group()
 nests.add(
     Nests(pos= (680, 260), size=(40,40)),
     Nests(pos=(0, 260), size=(40,40)),
 )
 
+# --- Wall Group ---
 walls = pygame.sprite.Group()
 walls.add(
     Walls(pos=(360, 260), size=(40,40))
 )
 
-# Defining Button Text
+# --- Text Rendering ---
 smallfont = pygame.font.SysFont('Corbel',25)
 
-
-
-
+# --- Main simulation loop ---
 while True:
     dt = clock.tick(60)
     sim_time = pygame.time.get_ticks()/1000
